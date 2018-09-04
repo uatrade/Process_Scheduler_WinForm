@@ -44,6 +44,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button5 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -201,11 +202,22 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Запуск процесса";
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(60, 327);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(173, 23);
+            this.button5.TabIndex = 15;
+            this.button5.Text = "Запуск командной строки";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button5);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label3);
@@ -240,6 +252,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button button5;
     }
 }
 

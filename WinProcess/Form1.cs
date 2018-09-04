@@ -65,9 +65,18 @@ namespace WinProcess
             if (DateTime.Now.ToShortTimeString() == dateTimePicker2.Text&&nameProc==true)
             {
                 process = Process.GetProcessesByName(txtBoxNameProcEnd.Text)[0];
+                nameProc = false;
+
+                using (FileStream fstream = new FileStream(@"D:\Process.txt", FileMode.OpenOrCreate))
+                {
+                    // преобразуем строку в байты
+                    byte[] array = System.Text.Encoding.Default.GetBytes(txtBoxNameProcEnd.Text + " " + "завершен в " + DateTime.Now.ToShortTimeString() + "\r\n");
+                    // запись массива байтов в файл
+                    fstream.Seek(+2, SeekOrigin.End);
+                    fstream.Write(array, 0, array.Length);
+                }
                 process.CloseMainWindow();
                 process.Kill();
-                nameProc = false;
             }
         }
         
@@ -76,9 +85,8 @@ namespace WinProcess
             TimerProg();
         }
 
-        public void TimerProg()
+        public void TimerProg()    //Запуск по расписанию
         {
-          long longText = 0;
             try
             {
                 if (DateTime.Now.ToShortTimeString() == dateTimePicker1.Text&&x==false)
@@ -117,10 +125,10 @@ namespace WinProcess
             timer.Change(1000, 50000);
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)    //Запуск задачи по расписанию
         {
             timerStartProg = new System.Threading.Timer(callbackStartProg);
-            timerStartProg.Change(100, 200);
+            timerStartProg.Change(100, 1000);
         }
 
         private void button3_Click(object sender, EventArgs e) //задание пути к файлу
@@ -153,9 +161,6 @@ namespace WinProcess
 
         private void btnEndProc_Click(object sender, EventArgs e)
         {
-            //timerEndProg = new System.Threading.Timer(callbackEndProg);
-            //timerEndProg.Change(100, 200);
-
             nameProc = false;
             proc = Process.GetProcesses();
             for (int i = 0; i < proc.Count(); i++)  //проверка на существование процесса
@@ -165,12 +170,17 @@ namespace WinProcess
             }
             if (nameProc == true)
             {
-                //TimerEndProg();
                 timerEndProg = new System.Threading.Timer(callbackEndProg);
                 timerEndProg.Change(100, 200);
             }
             else
                 MessageBox.Show("Данный процесс не запущен или не сущестует");
+        }
+
+        private void button5_Click(object sender, EventArgs e)    //Запуск командной строки
+
+        {
+            Process.Start(@"C:\Windows\System32\cmd.exe");
         }
     }
 }
