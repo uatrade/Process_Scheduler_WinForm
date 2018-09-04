@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+
 
 namespace WinProcess
 {
@@ -17,8 +19,12 @@ namespace WinProcess
 
         System.Threading.Timer timer;
         System.Threading.Timer timerStartProg;
+        System.Threading.Timer timerEndProg;
+        Process[] proc;   //все процессы
+        bool nameProc = false;  //существование процесса
         TimerCallback callback;
         TimerCallback callbackStartProg;
+        TimerCallback callbackEndProg;
         bool x;
         public Form1()
         {
@@ -30,20 +36,41 @@ namespace WinProcess
             callback = new TimerCallback(TimerMetod);
             timer = new System.Threading.Timer(callback);
             //timer.Change(2000, 10000);
-           
 
             //dateTimePicker1.ShowUpDown = true;
             dateTimePicker1.CustomFormat = "HH:mm";
             dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
 
+            dateTimePicker2.CustomFormat = "HH:mm";
+            dateTimePicker2.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+
             callbackStartProg = new TimerCallback(TimerMetodStartProg);
-         
             x = false; //контроль запуска по времени, если не запущено;
 
             button2.Enabled = false;
 
+            callbackEndProg = new TimerCallback(TimerMetodEndProg);
+            
+
         }
 
+        public void TimerMetodEndProg(object obj)
+        {
+            TimerEndProg();
+        }
+        public void TimerEndProg()
+        {
+            Process process;
+           
+            if (DateTime.Now.ToShortTimeString() == dateTimePicker2.Text&&nameProc==true)
+            {
+                process = Process.GetProcessesByName(txtBoxNameProcEnd.Text)[0];
+                process.CloseMainWindow();
+                process.Kill();
+                nameProc = false;
+            }
+        }
+        
         public void TimerMetodStartProg(object obj)
         {
             TimerProg();
@@ -51,12 +78,22 @@ namespace WinProcess
 
         public void TimerProg()
         {
+          long longText = 0;
             try
             {
                 if (DateTime.Now.ToShortTimeString() == dateTimePicker1.Text&&x==false)
                 { 
                 Process.Start(textBox1.Text);
                     x = true;
+
+                    using (FileStream fstream = new FileStream(@"D:\Process.txt", FileMode.OpenOrCreate))
+                    {
+                        // преобразуем строку в байты
+                        byte[] array = System.Text.Encoding.Default.GetBytes(textBox1.Text+" "+"запущен в "+ DateTime.Now.ToShortTimeString()+ "\r\n");
+                        // запись массива байтов в файл
+                        fstream.Seek(+2, SeekOrigin.End);
+                        fstream.Write(array, 0, array.Length);
+                    }
                 }
             }
             catch (Exception ex)
@@ -70,14 +107,14 @@ namespace WinProcess
         }
         public void Count()
         {
-            Process[] proc = Process.GetProcesses();
+            proc = Process.GetProcesses();
             listView1.Items.Clear();
             for (int i = 0; i < proc.Count(); i++)
             listView1.Items.Add(new ListViewItem(new[] { proc[i].ProcessName, proc[i].Id.ToString()}));
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            timer.Change(1000, 10000);
+            timer.Change(1000, 50000);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -112,6 +149,28 @@ namespace WinProcess
             x = false;
 
             timerStartProg.Dispose();
+        }
+
+        private void btnEndProc_Click(object sender, EventArgs e)
+        {
+            //timerEndProg = new System.Threading.Timer(callbackEndProg);
+            //timerEndProg.Change(100, 200);
+
+            nameProc = false;
+            proc = Process.GetProcesses();
+            for (int i = 0; i < proc.Count(); i++)  //проверка на существование процесса
+            {
+                if (proc[i].ProcessName == txtBoxNameProcEnd.Text)
+                    nameProc = true;
+            }
+            if (nameProc == true)
+            {
+                //TimerEndProg();
+                timerEndProg = new System.Threading.Timer(callbackEndProg);
+                timerEndProg.Change(100, 200);
+            }
+            else
+                MessageBox.Show("Данный процесс не запущен или не сущестует");
         }
     }
 }
